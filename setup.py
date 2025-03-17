@@ -7,14 +7,6 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, Extension
 
-# Following the recommendations of PEP 396 we parse the version number
-# out of the module.
-def parse_version(module_file):
-    f = open(module_file)
-    s = f.read()
-    f.close()
-    match = re.findall("__version__ = '([^']+)'", s)
-    return match[0]
 
 f = open(os.path.join(os.path.dirname(__file__), "README.md"))
 yref_readme = f.read()
@@ -37,7 +29,7 @@ yref = Extension(
 
 setup(
     name="yref",
-    version='1.0.0',
+    version='1.0.1',
     description="Python package to handle xml references",
     long_description=yref_readme,
     long_description_content_type='text/markdown',
