@@ -459,11 +459,11 @@ bool _extract_content(
       ) && !_is_json
     ){
 
-    if ( tag->item_list) {
-      strcat( from , "- " );
-    }
+      if ( tag->item_list) {
+        strcat( from , "- " );
+      }
 
-    strcat( from , result );
+      strcat( from , result );
 
      return false;
     }
@@ -482,7 +482,6 @@ bool _extract_content(
 
     strcat( from , "}" );
   } else {
-    // printf("%s\n", result );
     strcat( from , result );
   }
 
@@ -492,7 +491,6 @@ bool _extract_content(
     ref->lang == TYPE_YAML
   ) && is_json(from) ){
     char *out = json2yaml( from );
-
     memset( from, 0, strlen(from));
     strcat( from , out );
     from[strlen(from) - 1] = '\0';
@@ -504,19 +502,28 @@ bool _extract_content(
 
 void _add_spaces(char *econtent, int spaces) {
     char temp[ MAX_SIZE ];
+    size_t temp_len = 0;
 
     for (size_t i = 0; i < strlen(econtent); i++) {
         char c = econtent[i];
-        strncat(temp, &c, 1);
-        // Append one space at a time
+
+        // Append character safely
+        if (temp_len < MAX_SIZE - 1) {
+            temp[temp_len++] = c;
+        }
+
+        // If newline, add spaces
         if (c == '\n') {
-          for (int j = 0; j < spaces; j++) { strcat(temp, " "); }
+            for (int j = 0; j < spaces && temp_len < MAX_SIZE - 1; j++) {
+                temp[temp_len++] = ' ';
+            }
         }
     }
 
+    temp[temp_len] = '\0';
+
     strncpy(econtent , temp, MAX_SIZE       - 1);
     econtent[ MAX_SIZE         - 1] = '\0';
-
     memset( temp, 0, sizeof(temp)); // reset
 }
 
@@ -681,8 +688,14 @@ bool _replace_ref(
 
   if( ref->lang == TYPE_YAML ){ // if yaml type
     char* json = yaml2json_string( ref->render );
+
+    if ( json == NULL ){
+      json = yaml2json_string( ref->content );
+    }
+
     is_transformed = true;
     if ( json == NULL ){
+
       strncpy(extracted , "ERROR PARSING YAML : " , MAX_SIZE       - 1);
 
       strcat( extracted , ref->alias         );
@@ -770,8 +783,8 @@ bool _replace_ref(
   bool added_error = _append_data(origin,tag,extracted);
 
   if (added_error) {
-    return true;
     memset( extracted, 0, sizeof(extracted));
+    return true;
   }
 
 
@@ -879,10 +892,9 @@ int _interpret_refs(RefBuffer* data, RefLink* link, RefTag* tag, char* part){
     tag->full      = full_tag;
     tag->spaces    = inline_spaces ;
     tag->link      = tag_link;
-    tag->space     = space ;
     tag->path      = json_path ;
     tag->has_path  = has_path;
-    tag->end_slash = has_slash;
+    tag->end_slash = has_path ? json_path[strlen(json_path) -1] == '/' : false;
     tag->expose    = expose;
     tag->outerkey  = outerkey;
     tag->item_list = is_number( outerkey );
@@ -895,13 +907,15 @@ int _interpret_refs(RefBuffer* data, RefLink* link, RefTag* tag, char* part){
       if (data->state == -1) { return 1; }
 
       RefLink* ref = data->links[j];
-
+      //
       // printf("%s \n", tag->full );
       // printf("[%s]=[%s]=>%d\n", ref->alias ,space , strncmp(space    , ref->alias , strlen(ref->alias )) == 0);
       // printf("[%s]=[%s]=>%d\n", ref->name ,tag_link , strncmp(tag_link    , ref->name , strlen(ref->name )) == 0);
 
       if (!(
-        strncmp(space    , ref->alias , strlen(ref->alias )) == 0 &&
+        (
+          has_space ? (strncmp( space , ref->alias , strlen(ref->alias )) == 0) : true
+        ) &&
         strncmp(tag_link , ref->name  , strlen(ref->name  )) == 0
       )) {
         continue;
