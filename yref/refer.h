@@ -62,6 +62,8 @@ typedef struct RefBuffer {
 } RefBuffer;
 
 RefLink* _setup_link(RefBuffer* data, char* alias, char* name, int lang, char* content , bool is_source );
+void _xml_tags(char* content,char* entries, char* output,char* separator);
 int interpret(RefBuffer* data, RefLink* link);
+bool attr_val(char* input, char* key, char* output);
 
 #endif

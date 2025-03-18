@@ -21,6 +21,7 @@ yref = Extension(
         'yref/entries.c',
         'yref/yaml2json.c',
         'yref/cJSON.c',
+        'yref/find_links.c',
         'yref/json2css.c',
         'yref/json2yaml.c',
     ],

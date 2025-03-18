@@ -1,5 +1,7 @@
 #include <Python.h>
+#include "entries.h"
 #include "refer.h"
+#include "find_links.h"
 
 static PyObject* refer(PyObject* self, PyObject* args) {
     PyObject *list;
@@ -60,8 +62,10 @@ static PyObject* refer(PyObject* self, PyObject* args) {
     return result;
 }
 
+
 static PyMethodDef DictMethods[] = {
-    {"refer", refer, METH_VARARGS, "Process documents with references and interprets values!"},
+    {"refer" , refer      , METH_VARARGS, "Process documents with references and interprets values"},
+    {"find"  , find_links , METH_VARARGS, "Finds refenreces in string"},
     {NULL, NULL, 0, NULL}
 };
 

@@ -856,10 +856,8 @@ int _interpret_refs(RefBuffer* data, RefLink* link, RefTag* tag, char* part){
     // fragment in path
     char json_path[sbe-sb];
     char *slash = strchr(tag_link, '/');
-    bool has_slash = false;
 
     if (slash != NULL) {
-      has_slash = true;
       int first_length = slash - tag_link;
       tag_link[first_length] = '\0';
       strcpy(json_path, slash + 1);
