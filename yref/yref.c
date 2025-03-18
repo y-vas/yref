@@ -61,7 +61,7 @@ static PyObject* refer(PyObject* self, PyObject* args) {
 }
 
 static PyMethodDef DictMethods[] = {
-    {"refer", refer, METH_VARARGS, "Process list of lists and return link->render"},
+    {"refer", refer, METH_VARARGS, "Process documents with references and interprets values!"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -74,5 +74,24 @@ static struct PyModuleDef yrefmodule = {
 };
 
 PyMODINIT_FUNC PyInit_yref(void) {
-    return PyModule_Create(&yrefmodule);
+    PyObject *module = PyModule_Create(&yrefmodule);
+
+    if (!module) {
+      return NULL;
+    }
+
+    PyObject *types_dict = PyDict_New();
+
+    if (!types_dict) {
+       Py_DECREF(module);
+       return NULL;
+    }
+
+    PyDict_SetItemString(types_dict, "yaml" , PyLong_FromLong(TYPE_YAML));
+    PyDict_SetItemString(types_dict, "json" , PyLong_FromLong(TYPE_JSON));
+    PyDict_SetItemString(types_dict, "css"  , PyLong_FromLong(TYPE_CSS));
+
+    PyModule_AddObject(module, "types", types_dict);
+
+    return module;
 }
